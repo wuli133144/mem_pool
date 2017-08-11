@@ -22,10 +22,10 @@ mem_pool_t *jw_mem_alloc(size_t sz){
            return NULL;
        }
 
-    
        p->next=NULL;
        p->end=(char *)p+sz;
        p->last=(char *)p+sizeof(mem_pool_t);/*get one object*/
+      
 
        return p;
 }
@@ -37,6 +37,9 @@ void *jw_mem_palloc(mem_pool_t *pool,size_t sz){
         mem_pool_t *p,*q, *ex;
        
         char *cur;
+
+
+    mem_large_t *large,*m;
        /*enough mem*/
       if(sz<MAX_SIZE_ONCE_ALLOC 
           &&sz<=  ( (pool->end-(char *)pool-sizeof(mem_pool_t))  ))
@@ -46,7 +49,7 @@ void *jw_mem_palloc(mem_pool_t *pool,size_t sz){
                      cur=mem_align(p->last);
                      
                       if((size_t)((char *)p->end-(char *)cur)>sz){/*enough*/
-                            p->last+=sz;
+                            p->last=cur+sz;
                             return cur;
                       }
                       if(q==NULL){
@@ -64,16 +67,43 @@ void *jw_mem_palloc(mem_pool_t *pool,size_t sz){
             ex->last+=sz;
             return cur;
        }else{/*very bif mem block*/
+               large=     NULL;
+                m=        NULL;
          
-          
+             if(pool->large!=NULL){/*有大块内存直接分配*/
+                for(m=pool->large;;m=m->next){
+                      if(m->ex==NULL){/*enough*/
+                          large=m;
+                          m=NULL;
+                          break;
+                      }   
+                      if(m->next==  NULL){ /*内存不足*/
+                       break;
+                  }   
+                }
+                
+               
+             }
+
+            if(large==NULL){
+                    if(!(large=jw_mem_palloc(pool,sizeof(mem_large_t)))){
+                        return NULL;
+                    }
+                    large->next=NULL;
+                }
+              
+              if(!(p=jw_mem_alloc(sz))){
+                  return NULL;
+              }
              
-
-
-
-
+             if(pool->large==NULL){
+                  pool->large=large;
+             }else{
+                 if(m)
+                   m->next=large;  
+             }
+             return  large->ex=p;
+            
        }
-
-
-
 
 }

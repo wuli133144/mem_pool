@@ -18,20 +18,28 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "utils.h"
 
 
-typedef struct  mem_pool_node mem_pool_t;
+typedef struct mem_large_s mem_large_t;
+struct mem_large_s{
+     mem_large_t *next;
+     void *ex;
+};
+
 
 struct mem_pool_node{
        
        char *last; /*last pool*/
        char *end;  /*end position*/
-       mem_pool_t  *next; /*next pool object*/
+       struct mem_pool_node *next; /*next pool object*/
+       mem_large_t *large;
        void *ex;
+
 };
+
+typedef struct  mem_pool_node mem_pool_t;
 
 
 mem_pool_t *jw_mem_alloc(size_t);
 
 void * jw_mem_palloc(mem_pool_t *,size_t);
 
-void   destroy(mem_pool_t *);
 
