@@ -43,3 +43,10 @@ mem_pool_t *jw_mem_alloc(size_t);
 void * jw_mem_palloc(mem_pool_t *,size_t);
 
 
+void destroy_mem(mem_pool_t *pool);
+ 
+  
+
+
+
+
