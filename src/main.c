@@ -32,8 +32,9 @@ int main(int argc,char *const argv[])
        alloc=jw_mem_palloc(p,24);
        printf("%d=========",alloc-(char *)p);
 
-
-
+      
+      destroy_mem(p);
+   
 
 
 
