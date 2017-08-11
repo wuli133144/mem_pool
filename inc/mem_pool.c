@@ -34,12 +34,9 @@ mem_pool_t *jw_mem_alloc(size_t sz){
 
 void *jw_mem_palloc(mem_pool_t *pool,size_t sz){
         
-        mem_pool_t *p,*q, *ex;
-       
-        char *cur;
-
-
-    mem_large_t *large,*m;
+      mem_pool_t *p,*q, *ex;
+      char *cur;
+      mem_large_t *large,*m;
        /*enough mem*/
       if(sz<MAX_SIZE_ONCE_ALLOC 
           &&sz<=  ( (pool->end-(char *)pool-sizeof(mem_pool_t))  ))
@@ -105,5 +102,35 @@ void *jw_mem_palloc(mem_pool_t *pool,size_t sz){
              return  large->ex=p;
             
        }
+
+}
+
+
+
+void destroy_mem(mem_pool_t *pool){
+      if(pool->large!=NULL){
+                mem_large_t *item=pool->large->next;
+                mem_large_t *pre=pool->large;
+
+              
+                while(item!=NULL){
+                    mem_free(pre);
+                    pre=item;
+                    item=item->next;
+                }
+                mem_free(pre);
+                pre=NULL;
+      }
+        
+        mem_pool_t *cur=pool->next;
+        mem_pool_t *pre_cur=pool;
+
+      while(cur!=NULL){
+           mem_free(pre_cur);
+           pre_cur=cur;
+           cur=cur->next;
+      }
+      mem_free(pre_cur);
+      pre_cur=NULL;
 
 }
